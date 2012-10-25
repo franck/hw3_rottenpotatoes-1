@@ -25,4 +25,23 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
+  ratings = rating_list.split(', ')
+  if uncheck.present?
+    ratings.each{|rating| uncheck("ratings_#{rating}") }
+  else
+    ratings.each{|rating| check("ratings_#{rating}") }
+  end
+end
+
+Then /^I should see movies with ratings: (.*)$/ do |rating_list|
+  ratings = rating_list.split(', ')
+  rows = page.all(:xpath, "//table[@id='movies']//tr//td[2]")
+  rows.each{|row| assert ratings.include?(row.text) }
+end
+
+Then /^I should not see movies with ratings: (.*)$/ do |rating_list|
+  ratings = rating_list.split(', ')
+  rows = page.all(:xpath, "//table[@id='movies']//tr//td[2]")
+  rows.each{|row| ratings.each{|rating| assert row.text != rating }}
+  #rows.each{|r| puts r.text; puts}
 end
